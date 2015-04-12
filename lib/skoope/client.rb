@@ -1,11 +1,14 @@
 require 'socket'
 require 'thread'
 
-class Client
-  DEFAULT_PORT = 3000
+module Skoope
+  class Client
 
-  def initialize
+    DEFAULT_PORT = 3000
+
+    def initialize
+
+    end
 
   end
-
 end

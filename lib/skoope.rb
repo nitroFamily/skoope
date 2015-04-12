@@ -7,6 +7,6 @@ module Skoope
     client = Client.new
     application = Application.new(client)
 
-    # application.start
+    application.start
   end
 end

@@ -7,14 +7,14 @@ module Skoope
       def initialize(view)
         super(view)
 
-        # events.on(:key) do |key|
-        #   case key
-        #   when :up
-        #     @view.up
-        #   when :down
-        #     @view.down
-        #   end
-        # end
+        @events.on(:key) do |key|
+          case key
+          when :up
+            @view.up
+          when :down
+            @view.down
+          end
+        end
 
       end
 

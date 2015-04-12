@@ -7,6 +7,10 @@ module Skoope
     client = Client.new
     application = Application.new(client)
 
+    Signal.trap('SIGINT') do
+      application.stop
+    end
+
     application.start
   end
 end

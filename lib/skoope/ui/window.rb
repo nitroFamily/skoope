@@ -1,4 +1,3 @@
-# require 'ncurses'
 require 'curses'
 
 module Skoope
@@ -6,8 +5,8 @@ module Skoope
     class Window
 
       def initialize
-        Curses.noecho # do not show typed keys
-        Curses.stdscr.keypad(true) # enable arrow keys
+        Curses.noecho
+        Curses.stdscr.keypad(true)
         Curses.init_screen
         # Color.init
       end

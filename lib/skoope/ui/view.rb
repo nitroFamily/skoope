@@ -1,4 +1,3 @@
-# require 'ncurses'
 require 'curses'
 
 module Skoope

@@ -1,5 +1,7 @@
 require 'curses'
 
+require_relative 'color'
+
 module Skoope
   module UI
     class Window
@@ -8,7 +10,7 @@ module Skoope
         Curses.noecho
         Curses.stdscr.keypad(true)
         Curses.init_screen
-        # Color.init
+        Color.init
       end
 
       def close

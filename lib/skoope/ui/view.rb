@@ -1,5 +1,7 @@
 require 'curses'
 
+require_relative 'color'
+
 module Skoope
   module UI
     class View
@@ -26,6 +28,10 @@ module Skoope
 
       def body_width
         @rect.width - 2 * padding
+      end
+
+      def with_color(name, &block)
+        @window.attron(Color.get(name), &block)
       end
 
       def clear

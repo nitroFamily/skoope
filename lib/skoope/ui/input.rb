@@ -11,6 +11,7 @@ module Skoope
         Curses::KEY_UP     => :up,
         Curses::KEY_ENTER  => :enter,
         ' '                => :space,
+        'm'                => :m
       }
 
       def self.get(delay = 0)

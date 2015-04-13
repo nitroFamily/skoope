@@ -24,9 +24,9 @@ skoope
       def draw
         0.upto(top) { line '' }
         lines.each do |row|
-          # with_color(:green) do
+          with_color(:magenta) do
             line ' ' * left + row
-          # end
+          end
         end
       end
 

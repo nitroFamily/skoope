@@ -20,9 +20,9 @@ module Skoope
       @listeners << listener
     end
 
-    def send(message, type)
-      app_packet = {type: "#{type}", data: message}
-      @socket.send(Marshal.dump(app_packet), 0, @dst_ip, @port)
+    def send(data, type)
+      packet = {type: "#{type}", data: data}
+      @socket.send(Marshal.dump(packet), 0, @dst_ip, @port)
     end
 
     def listen

@@ -3,13 +3,16 @@ require_relative 'ui/input'
 require_relative 'ui/rect'
 
 require_relative 'controllers/dialog_controller'
+require_relative 'controllers/io_controller'
 
 require_relative 'models/message_collection'
 require_relative 'models/user'
+require_relative 'models/io'
 
-require_relative 'views/hero'
 require_relative 'views/dialog'
 require_relative 'views/spacer'
+require_relative 'views/voice'
+require_relative 'views/hero'
 
 
 module Skoope
@@ -21,12 +24,18 @@ module Skoope
     def initialize(client)
       @window = UI::Window.new
 
-      @hero_controller = Controller.new(Hero.new(
-                         UI::Rect.new(0, 0, Curses.cols, Curses.lines)))
+      @hero_controller   = Controller.new(Hero.new(
+                           UI::Rect.new(0, 0, Curses.cols, Curses.lines)))
+
       @dialog_controller = DialogController.new(Dialog.new(
                            UI::Rect.new(0, 2, Curses.cols, Curses.lines - 4)))
+
       @spacer_controller = Controller.new(Spacer.new(
                            UI::Rect.new(0, Curses.lines - 2, Curses.cols, 1)))
+
+      @voice_controller  = IOController.new(Voice.new(
+                           UI::Rect.new(0, 0, Curses.cols, 2)))
+
       @dialog_controller.bind_to(MessageCollection.new(client, User.new(ARGV[0])))
     end
 
@@ -38,6 +47,7 @@ module Skoope
           @workaround_was_called_once_already = true
           handle UI::Input.get(0)
           @dialog_controller.render
+          @voice_controller.render
           @spacer_controller.render
         end
 
@@ -51,6 +61,8 @@ module Skoope
       case key
       when :up, :down, :m
         @dialog_controller.events.trigger(:key, key)
+      when :space
+        @voice_controller.events.trigger(:key, key)
       end
     end
 

@@ -33,10 +33,11 @@ module Skoope
       @spacer_controller = Controller.new(Spacer.new(
                            UI::Rect.new(0, Curses.lines - 2, Curses.cols, 1)))
 
-      @voice_controller  = IOController.new(Voice.new(
+      @io_controller     = IOController.new(Voice.new(
                            UI::Rect.new(0, 0, Curses.cols, 2)))
 
       @dialog_controller.bind_to(MessageCollection.new(client, User.new(ARGV[0])))
+      @io_controller.bind_to(IO.new(client))
     end
 
     def interaction
@@ -47,7 +48,7 @@ module Skoope
           @workaround_was_called_once_already = true
           handle UI::Input.get(0)
           @dialog_controller.render
-          @voice_controller.render
+          @io_controller.render
           @spacer_controller.render
         end
 
@@ -62,7 +63,7 @@ module Skoope
       when :up, :down, :m
         @dialog_controller.events.trigger(:key, key)
       when :space
-        @voice_controller.events.trigger(:key, key)
+        @io_controller.events.trigger(:key, key)
       end
     end
 

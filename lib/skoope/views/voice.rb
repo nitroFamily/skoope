@@ -6,7 +6,7 @@ module Skoope
       attr_accessor :io
 
       def draw
-        line "#{@io.stream.buffer[0]}"
+        line "#{@io.input_stream.buffer[0]} - #{@io.output_stream.buffer[0]}"
       end
 
     end

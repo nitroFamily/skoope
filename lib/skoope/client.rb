@@ -37,6 +37,8 @@ module Skoope
           @listeners.each do | listener |
             if data[:type] == "message"
               listener.events.trigger(:new_message, data)
+            elsif data[:type] == "voice"
+              listener.events.trigger(:new_voice, data)
             end
           end
         end

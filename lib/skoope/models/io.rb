@@ -1,37 +1,29 @@
-require 'ffi-portaudio'
 require_relative '../events'
+require_relative 'streams'
 
 module Skoope
   module Models
-    class InputStream < FFI::PortAudio::Stream
-      attr_reader :events, :buffer
-      def initialize
-        @events = Events.new
-        @buffer = []
-      end
-
-      def process(input, output, frameCount, timeInfo, statusFlags, userData)
-
-        @buffer = input.read_array_of_int16(frameCount)
-        @events.trigger(:new_input, @buffer)
-
-        :paContinue
-      end
-    end
-
     class IO
-      attr_accessor :stream
+      attr_accessor :input_stream, :output_stream, :client
       include FFI::PortAudio
 
       BUFFER_SIZE = 300
 
-      def initialize
-        # @client = client
+      def initialize(client)
+        @events = Events.new
+        @client = client
         # @user = user
         @active = false
 
         init_pa
         init_input
+        init_output
+
+        # @events.on(:new_voice) do | data |
+        #   # @output_stream.buffer = data[:data]
+        # end
+
+        # @client.add_data_listener(self)
       end
 
       def init_pa
@@ -46,20 +38,43 @@ module Skoope
         @input[:suggestedLatency] = 0
         @input[:hostApiSpecificStreamInfo] = nil
 
-        @stream = InputStream.new
+        @input_stream = InputStream.new
+      end
+
+      def init_output
+        @output = API::PaStreamParameters.new
+        @output[:device] = API.Pa_GetDefaultOutputDevice
+        @output[:channelCount] = 1
+        @output[:sampleFormat] = API::Int16
+        @output[:suggestedLatency] = 0
+        @output[:hostApiSpecificStreamInfo] = nil
+
+        @output_stream = OutputStream.new
       end
 
       def start
         unless active?
-          @stream.open(@input, nil, 44100, BUFFER_SIZE)
-          @stream.start
+          @input_stream.open(@input, nil, 10_000, BUFFER_SIZE)
+          @output_stream.open(nil, @output, 10_000, BUFFER_SIZE)
+
+          @input_stream.start
+          @output_stream.start
           @active = true
         end
       end
 
+      def send_buffer
+        @client.send(@input_stream.buffer, "voice")
+      end
+
+      def receive_buffer(data)
+        @output_stream.buffer = data[:data]
+      end
+
       def close
         if active?
-          @stream.close
+          @input_stream.close
+          @output_stream.close
           API.Pa_Terminate
         end
       end

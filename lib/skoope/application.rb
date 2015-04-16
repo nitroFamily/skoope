@@ -3,6 +3,7 @@ require_relative 'ui/input'
 require_relative 'ui/rect'
 
 require_relative 'controllers/dialog_controller'
+require_relative 'controllers/alive_controller'
 require_relative 'controllers/io_controller'
 
 require_relative 'models/message_collection'
@@ -10,7 +11,7 @@ require_relative 'models/user'
 require_relative 'models/io'
 
 require_relative 'views/dialog'
-require_relative 'views/spacer'
+require_relative 'views/alive'
 require_relative 'views/voice'
 require_relative 'views/hero'
 
@@ -30,11 +31,11 @@ module Skoope
       @dialog_controller = DialogController.new(Dialog.new(
                            UI::Rect.new(0, 2, Curses.cols, Curses.lines - 4)))
 
-      @spacer_controller = Controller.new(Spacer.new(
-                           UI::Rect.new(0, Curses.lines - 2, Curses.cols, 1)))
+      @alive_controller  = AliveController.new(Alive.new(
+                           UI::Rect.new(0, Curses.lines - 2, Curses.cols, 1)), client)
 
       @io_controller     = IOController.new(Voice.new(
-                           UI::Rect.new(0, 0, Curses.cols, 2)))
+                           UI::Rect.new(0, 0, Curses.cols, 2)), client)
 
       @dialog_controller.bind_to(MessageCollection.new(client, User.new(ARGV[0])))
       @io_controller.bind_to(IO.new(client))
@@ -49,7 +50,7 @@ module Skoope
           handle UI::Input.get(0)
           @dialog_controller.render
           @io_controller.render
-          @spacer_controller.render
+          @alive_controller.render
         end
 
         break if stop?
@@ -62,7 +63,7 @@ module Skoope
       case key
       when :up, :down, :m
         @dialog_controller.events.trigger(:key, key)
-      when :space
+      when :space, :y, :n
         @io_controller.events.trigger(:key, key)
       end
     end

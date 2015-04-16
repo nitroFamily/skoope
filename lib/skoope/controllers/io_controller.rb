@@ -4,13 +4,43 @@ module Skoope
   module Controllers
     class IOController < Controller
 
-      def initialize(view)
+      def initialize(view, client)
         super(view)
+
+        @client = client
+        @client.add_data_listener(self)
 
         @events.on(:key) do | key |
           case key
           when :space
-            @io.start
+            @io.send_init
+            @view.render
+          when :y
+            @io.send_ack
+            @view.render
+          when :n
+            @io.send_fin
+            @view.render
+          end
+        end
+
+        @events.on(:new_management) do | data |
+          case data[:data]
+          when "init"
+            if @io.status == :off
+              @view.ask_user
+              @view.render
+            end
+          when "ack"
+            if @io.status == :wait
+              @io.start
+              @view.render
+            end
+          when "fin"
+            if @io.status == :on
+              @io.stop
+              @view.render
+            end
           end
         end
       end
@@ -18,7 +48,6 @@ module Skoope
       def bind_to(instance)
         @io = instance
         @view.io = instance
-        @io.client.add_data_listener(self)
 
         @io.input_stream.events.on(:new_input) do | input |
           @view.render

@@ -7,7 +7,7 @@ module Skoope
       def initialize(view)
         super(view)
 
-        @events.on(:key) do |key|
+        @events.on(:key) do | key |
           case key
           when :up
             @view.up

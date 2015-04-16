@@ -26,7 +26,7 @@ module Skoope
     end
 
     def listen
-    @socket.bind(@src_ip, @port)
+      @socket.bind(@src_ip, @port)
 
       @listening_thread = Thread.new do
         loop do
@@ -35,10 +35,13 @@ module Skoope
           data = Marshal.load(raw_data)
 
           @listeners.each do | listener |
-            if data[:type] == "message"
+            case data[:type]
+            when "message"
               listener.events.trigger(:new_message, data)
-            elsif data[:type] == "voice"
+            when "voice"
               listener.events.trigger(:new_voice, data)
+            when "management"
+              listener.events.trigger(:new_management, data)
             end
           end
         end

@@ -4,7 +4,7 @@ require_relative 'streams'
 module Skoope
   module Models
     class IO
-      attr_accessor :input_stream, :output_stream, :client
+      attr_accessor :input_stream, :output_stream, :client, :status
       include FFI::PortAudio
 
       BUFFER_SIZE = 300
@@ -14,6 +14,8 @@ module Skoope
         @client = client
         # @user = user
         @active = false
+
+        @status = :off
 
         init_pa
         init_input
@@ -60,6 +62,15 @@ module Skoope
           @input_stream.start
           @output_stream.start
           @active = true
+          @status = :on
+        end
+      end
+
+      def stop
+        if active?
+          @input_stream.close
+          @output_stream.close
+          @status = :off
         end
       end
 
@@ -69,6 +80,25 @@ module Skoope
 
       def receive_buffer(data)
         @output_stream.buffer = data[:data]
+      end
+
+      def send_init
+        if @status == :off
+          @client.send("init", "management")
+          @status = :wait
+        end
+      end
+
+      def send_ack
+        @client.send("ack", "management")
+        @status = :on
+        start
+      end
+
+      def send_fin
+        @client.send("fin", "management")
+        @status = :off
+        stop if active?
       end
 
       def close

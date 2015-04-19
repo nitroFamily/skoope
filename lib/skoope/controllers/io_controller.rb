@@ -10,18 +10,20 @@ module Skoope
         @client = client
         @client.add_data_listener(self)
 
+        handshake
+      end
+
+      def handshake
         @events.on(:key) do | key |
           case key
           when :space
             @io.send_init
-            @view.render
           when :y
             @io.send_ack
-            @view.render
           when :n
             @io.send_fin
-            @view.render
           end
+          @view.render
         end
 
         @events.on(:new_management) do | data |
@@ -37,7 +39,7 @@ module Skoope
               @view.render
             end
           when "fin"
-            if @io.status == :on
+            if @io.status == :on || @io.status == :wait
               @io.stop
               @view.render
             end

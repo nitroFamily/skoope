@@ -4,7 +4,17 @@ module Skoope
   module Views
     class Hero < UI::View
       CONTENT = %q{
-skoope
+      _
+     | |
+  ___| | _____   ___  _ __   ___
+ / __| |/ / _ \ / _ \| '_ \ / _ \
+ \__ \   < (_) | (_) | |_) |  __/
+ |___/_|\_\___/ \___/| .__/ \___|
+                     | |
+                     |_|
+
+               Peace!
+
 }
 
     protected

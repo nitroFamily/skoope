@@ -12,7 +12,6 @@ module Skoope
       def initialize(client)
         @events = Events.new
         @client = client
-        # @user = user
         @active = false
 
         @status = :off
@@ -20,12 +19,6 @@ module Skoope
         init_pa
         init_input
         init_output
-
-        # @events.on(:new_voice) do | data |
-        #   # @output_stream.buffer = data[:data]
-        # end
-
-        # @client.add_data_listener(self)
       end
 
       def init_pa
@@ -70,8 +63,8 @@ module Skoope
         if active?
           @input_stream.close
           @output_stream.close
-          @status = :off
         end
+        @status = :off
       end
 
       def send_buffer

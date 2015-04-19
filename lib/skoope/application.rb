@@ -69,11 +69,13 @@ module Skoope
     end
 
     def start
-      @hero_controller.render
       interaction
     end
 
     def stop
+      @alive_controller.stop
+      @hero_controller.render
+      sleep(1)
       @stop = true
     end
 

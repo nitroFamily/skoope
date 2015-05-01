@@ -30,7 +30,7 @@ module Skoope
           case data[:data]
           when "init"
             if @io.status == :off
-              @view.ask_user
+              @view.status = :ask_user
               @view.render
             end
           when "ack"

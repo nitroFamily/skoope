@@ -3,19 +3,21 @@ require_relative '../ui/view'
 module Skoope
   module Views
     class Voice < UI::View
-      attr_accessor :io
+      attr_accessor :io, :status
 
       def draw
-        # case @io.status
-        # when :on
-        #   line "#{@io.input_stream.buffer[0]} - #{@io.output_stream.buffer[0]}"
-        # when :wait
-        #   line "Wait ack ... "
-        # when :off
-        #   line "Press space to start"
-        # end
-        with_color(:yellow) do
-          line @io.status.to_s
+        if @status == :ask_user
+          line "u/n"
+          @status = nil
+        else
+          with_color(:yellow) do
+            if @io.duration
+              duration = Time.now - @io.duration
+              line "#{@io.status.to_s} #{duration}"
+            else
+              line "#{@io.status.to_s}"
+            end
+          end
         end
       end
 

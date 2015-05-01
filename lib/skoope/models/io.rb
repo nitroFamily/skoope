@@ -4,7 +4,7 @@ require_relative 'streams'
 module Skoope
   module Models
     class IO
-      attr_accessor :input_stream, :output_stream, :client, :status
+      attr_accessor :input_stream, :output_stream, :client, :status, :duration
       include FFI::PortAudio
 
       BUFFER_SIZE = 300
@@ -12,9 +12,9 @@ module Skoope
       def initialize(client)
         @events = Events.new
         @client = client
-        @active = false
-
         @status = :off
+
+        @duration = nil
 
         init_pa
         init_input
@@ -49,13 +49,14 @@ module Skoope
 
       def start
         unless active?
-          @input_stream.open(@input, nil, 10_000, BUFFER_SIZE)
-          @output_stream.open(nil, @output, 10_000, BUFFER_SIZE)
+          @input_stream.open(@input, nil, 5_000, BUFFER_SIZE)
+          @output_stream.open(nil, @output, 5_000, BUFFER_SIZE)
 
           @input_stream.start
           @output_stream.start
-          @active = true
           @status = :on
+
+          @duration = Time.now
         end
       end
 
@@ -65,6 +66,8 @@ module Skoope
           @output_stream.close
         end
         @status = :off
+
+        @duration = nil
       end
 
       def send_buffer
@@ -77,33 +80,37 @@ module Skoope
 
       def send_init
         if @status == :off
-          @client.send("init", "management")
+          # @client.send("init", "management")
+          3.times { @client.send("init", "management") }
           @status = :wait
         end
       end
 
       def send_ack
-        @client.send("ack", "management")
-        @status = :on
-        start
+        if @status == :off
+          # @client.send("ack", "management")
+          3.times { @client.send("ack", "management") }
+          start
+        end
       end
 
       def send_fin
-        @client.send("fin", "management")
-        @status = :off
-        stop if active?
+        if @status == :wait || @status == :on
+          3.times { @client.send("fin", "management") }
+          stop
+          # @client.send("fin", "management")
+        end
       end
 
       def close
         if active?
-          @input_stream.close
-          @output_stream.close
+          stop
           API.Pa_Terminate
         end
       end
 
       def active?
-        @active == true
+        @status == :on
       end
 
     end
